@@ -74,7 +74,6 @@ function showNotification(message, type = 'info') {
   messageDiv.textContent = message;
   notificationDiv.style.display = "block";
   
-  // Auto-dismiss after 5 seconds for info messages
   if (type === 'info') {
     setTimeout(dismissNotification, 5000);
   }
