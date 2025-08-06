@@ -1,4 +1,4 @@
-let quotes = JSON.parse(localStorage.getItem("quotes")) || [
+const quotes = JSON.parse(localStorage.getItem("quotes")) || [
   { text: "Haba na haraka, lakini bila kusimama.", category: "motivation" },
   { text: "Mti hauanguki kwa mpigo mmoja.", category: "perseverance" },
   { text: "Ukweli hauogopi upelelezi.", category: "truth" },
@@ -16,54 +16,89 @@ let quotes = JSON.parse(localStorage.getItem("quotes")) || [
   { text: "Usiende mahali pasipo na kurudi.", category: "caution" }
 ];
 
-// Show a random quote from a given list
-function showQuote(list) {
-  const quote = list[Math.floor(Math.random() * list.length)];
-  document.getElementById("quoteDisplay").innerHTML = quote
-    ? `<blockquote>"${quote.text}"</blockquote><p><strong>Category:</strong> ${quote.category}</p>`
-    : "<p>No quotes found in this category.</p>";
-}
-
-// Populate dropdown with unique categories
+// --- Populate categories dynamically ---
 function populateCategories() {
-  const select = document.getElementById("categoryFilter");
-  const selected = localStorage.getItem("selectedCategory") || "all";
-  const categories = ["all", ...new Set(quotes.map(q => q.category))];
+  const categorySelect = document.getElementById("categoryFilter");
+  const categories = Array.from(new Set(quotes.map(q => q.category)));
 
-  select.innerHTML = categories
-    .map(cat => `<option value="${cat}">${cat[0].toUpperCase() + cat.slice(1)}</option>`)
-    .join("");
-  select.value = selected;
+  // Clear existing (except "All")
+  categorySelect.innerHTML = `<option value="all">All Categories</option>`;
+
+  categories.forEach(category => {
+    const option = document.createElement("option");
+    option.value = category;
+    option.textContent = category.charAt(0).toUpperCase() + category.slice(1);
+    categorySelect.appendChild(option);
+  });
+
+  // Restore last selected filter
+  const savedFilter = localStorage.getItem("selectedCategory");
+  if (savedFilter) {
+    categorySelect.value = savedFilter;
+  }
 }
 
-// Filter and display quotes based on selected category
+// --- Filter quotes by category ---
 function filterQuotes() {
-  const selected = document.getElementById("categoryFilter").value;
-  localStorage.setItem("selectedCategory", selected);
-  const filtered = selected === "all" ? quotes : quotes.filter(q => q.category === selected);
-  showQuote(filtered);
+  const selectedCategory = document.getElementById("categoryFilter").value;
+  localStorage.setItem("selectedCategory", selectedCategory);
+
+  const filteredQuotes = selectedCategory === "all"
+    ? quotes
+    : quotes.filter(q => q.category === selectedCategory);
+
+  displayQuote(filteredQuotes);
 }
 
-// Add new quote and update storage and UI
+// --- Display one quote from given list ---
+function displayQuote(quoteList) {
+  const quoteDisplay = document.getElementById("quoteDisplay");
+
+  if (!quoteList.length) {
+    quoteDisplay.innerHTML = `<p>No quotes found in this category.</p>`;
+    return;
+  }
+
+  const randomIndex = Math.floor(Math.random() * quoteList.length);
+  const quote = quoteList[randomIndex];
+
+  quoteDisplay.innerHTML = `
+    <blockquote>"${quote.text}"</blockquote>
+    <p><strong>Category:</strong> ${quote.category}</p>
+  `;
+}
+
+// --- Show random quote based on current filter ---
+function showRandomQuote() {
+  filterQuotes(); // Simply reuse filter logic
+}
+
+// --- Add a new quote ---
 function addQuote() {
-  const text = document.getElementById("newQuoteText").value.trim();
-  const category = document.getElementById("newQuoteCategory").value.trim().toLowerCase();
+  const newQuoteText = document.getElementById("newQuoteText").value.trim();
+  const newQuoteCategory = document.getElementById("newQuoteCategory").value.trim().toLowerCase();
 
-  if (!text || !category) return alert("Please fill in both the quote and category.");
+  if (!newQuoteText || !newQuoteCategory) {
+    alert("Please fill in both the quote text and category.");
+    return;
+  }
 
-  quotes.push({ text, category });
+  quotes.push({ text: newQuoteText, category: newQuoteCategory });
   localStorage.setItem("quotes", JSON.stringify(quotes));
 
-  document.getElementById("newQuoteText").value = "";
-  document.getElementById("newQuoteCategory").value = "";
+  // Clear inputs
+  document.getElementById("newQuoteText").value = '';
+  document.getElementById("newQuoteCategory").value = '';
 
+  // Re-populate categories and refresh quote
   populateCategories();
   filterQuotes();
   alert("Quote added successfully!");
 }
 
+// --- Initialize app on load ---
 document.addEventListener("DOMContentLoaded", () => {
   populateCategories();
   filterQuotes();
-  document.getElementById("newQuote").addEventListener("click", filterQuotes);
+  document.getElementById("newQuote").addEventListener("click", showRandomQuote);
 });
