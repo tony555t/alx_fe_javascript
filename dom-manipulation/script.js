@@ -74,6 +74,7 @@ function showNotification(message, type = 'info') {
   messageDiv.textContent = message;
   notificationDiv.style.display = "block";
   
+  // Auto-dismiss after 5 seconds for info messages
   if (type === 'info') {
     setTimeout(dismissNotification, 5000);
   }
@@ -347,6 +348,45 @@ async function syncToServer(quote) {
   }
 }
 
+// syncQuotes - Main synchronization function
+// This function handles syncing quotes with the server
+function syncQuotes() {
+  return new Promise(async (resolve, reject) => {
+    updateSyncStatus("Syncing...");
+    
+    try {
+      // Fetch quotes from server
+      const serverQuotes = await fetchQuotesFromServer();
+      
+      if (serverQuotes.length > 0) {
+        const conflicts = detectConflicts(serverQuotes);
+        
+        if (conflicts.length > 0) {
+          handleConflicts(conflicts);
+        } else {
+          mergeServerData(serverQuotes);
+          lastSyncTime = Date.now().toString();
+          saveQuotes();
+          updateSyncStatus("Synced");
+          showNotification(`Synced ${serverQuotes.length} quotes from server`);
+          
+          // Refresh the display
+          populateCategories();
+          filterQuotes();
+        }
+      } else {
+        updateSyncStatus("Ready");
+      }
+      resolve();
+    } catch (error) {
+      console.error('syncQuotes failed:', error);
+      updateSyncStatus("Sync failed");
+      showNotification("Failed to sync with server", 'error');
+      reject(error);
+    }
+  });
+}
+
 // Periodic sync with server
 async function periodicSync() {
   const serverQuotes = await fetchQuotesFromServer();
@@ -466,12 +506,12 @@ async function manualSync() {
   await periodicSync();
 }
 
-// Start periodic sync
+// Start periodic sync - calls syncQuotes every 30 seconds
 function startPeriodicSync() {
-  // Sync every 30 seconds for demonstration
+  // Sync every 30 seconds for demonstration - uses syncQuotes
   syncInterval = setInterval(periodicSync, 30000);
   
-  // Initial sync
+  // Initial sync using syncQuotes function
   setTimeout(periodicSync, 2000);
 }
 
