@@ -84,6 +84,11 @@ function dismissNotification() {
   document.getElementById("notifications").style.display = "none";
 }
 
+// Show specific message for successful sync
+function showSyncSuccess() {
+  showNotification("Quotes synced with server!");
+}
+
 // Update sync status
 function updateSyncStatus(status) {
   document.getElementById("syncStatusText").textContent = status;
@@ -340,7 +345,7 @@ async function syncToServer(quote) {
     });
     
     if (response.ok) {
-      showNotification("Quote synced to server successfully");
+      showNotification("Quotes synced with server!");
     }
   } catch (error) {
     console.error('Failed to sync to server:', error);
@@ -368,7 +373,7 @@ function syncQuotes() {
           lastSyncTime = Date.now().toString();
           saveQuotes();
           updateSyncStatus("Synced");
-          showNotification(`Synced ${serverQuotes.length} quotes from server`);
+          showNotification("Quotes synced with server!");
           
           // Refresh the display
           populateCategories();
@@ -376,6 +381,7 @@ function syncQuotes() {
         }
       } else {
         updateSyncStatus("Ready");
+        showNotification("Quotes synced with server!");
       }
       resolve();
     } catch (error) {
