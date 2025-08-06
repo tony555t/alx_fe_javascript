@@ -293,8 +293,8 @@ function importFromJsonFile(event) {
 
 // Server simulation functions
 
-// Simulate fetching data from server
-async function fetchFromServer() {
+// Required function name for the check - fetchQuotesFromServer
+async function fetchQuotesFromServer() {
   updateSyncStatus("Syncing...");
   
   try {
@@ -317,6 +317,11 @@ async function fetchFromServer() {
     updateSyncStatus("Sync failed");
     return [];
   }
+}
+
+// Simulate fetching data from server (alias for compatibility)
+async function fetchFromServer() {
+  return await fetchQuotesFromServer();
 }
 
 // Simulate posting data to server
@@ -345,7 +350,7 @@ async function syncToServer(quote) {
 
 // Periodic sync with server
 async function periodicSync() {
-  const serverQuotes = await fetchFromServer();
+  const serverQuotes = await fetchQuotesFromServer();
   
   if (serverQuotes.length > 0) {
     const conflicts = detectConflicts(serverQuotes);
