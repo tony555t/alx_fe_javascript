@@ -8,6 +8,18 @@
 <body>
   <h1>Dynamic Quote Generator</h1>
 
+  <!-- Sync Status Display -->
+  <div id="syncStatus">
+    <p><strong>Sync Status:</strong> <span id="syncStatusText">Ready</span></p>
+    <button id="manualSyncBtn" onclick="manualSync()">Manual Sync</button>
+  </div>
+
+  <!-- Notification System -->
+  <div id="notifications" style="display: none; background-color: #f0f0f0; padding: 10px; margin: 10px 0; border: 1px solid #ccc;">
+    <div id="notificationMessage"></div>
+    <button onclick="dismissNotification()">Dismiss</button>
+  </div>
+
   <label for="categoryFilter">Filter by Category:</label>
   <select id="categoryFilter" onchange="filterQuotes()">
     <option value="all">All Categories</option>
@@ -17,6 +29,7 @@
   <div id="quoteDisplay"></div>
 
   <p><strong>Total Quotes:</strong> <span id="quoteCount">0</span> | <strong>Last Viewed:</strong> <span id="lastViewed">None</span></p>
+  <p><strong>Last Sync:</strong> <span id="lastSyncTime">Never</span></p>
 
   <h3>Add New Quote</h3>
   <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
@@ -27,6 +40,15 @@
   <button onclick="exportToJson()">Export Quotes to JSON</button>
   <input type="file" id="importFile" accept=".json" onchange="importFromJsonFile(event)" />
   <button onclick="document.getElementById('importFile').click()">Import from JSON</button>
+
+  <!-- Conflict Resolution UI -->
+  <div id="conflictResolution" style="display: none; background-color: #ffffcc; padding: 15px; margin: 10px 0; border: 2px solid #ffcc00;">
+    <h4>Conflict Detected!</h4>
+    <p id="conflictMessage"></p>
+    <button id="acceptServerBtn" onclick="resolveConflict('server')">Accept Server Version</button>
+    <button id="keepLocalBtn" onclick="resolveConflict('local')">Keep Local Version</button>
+    <button id="mergeBtn" onclick="resolveConflict('merge')">Merge Both</button>
+  </div>
 
   <script src="script.js"></script>
 </body>
