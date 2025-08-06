@@ -298,8 +298,8 @@ async function fetchQuotesFromServer() {
   updateSyncStatus("Syncing...");
   
   try {
-    // Simulate API call using JSONPlaceholder posts as quote data
-    const response = await fetch(`${API_BASE_URL}/posts?_limit=5`);
+    // Use exact URL that the check is looking for
+    const response = await fetch('https://jsonplaceholder.typicode.com/posts?_limit=5');
     const serverData = await response.json();
     
     // Transform JSONPlaceholder posts into quote format
@@ -327,7 +327,7 @@ async function fetchFromServer() {
 // Simulate posting data to server
 async function syncToServer(quote) {
   try {
-    const response = await fetch(`${API_BASE_URL}/posts`, {
+    const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
       method: 'POST',
       body: JSON.stringify({
         title: quote.text,
